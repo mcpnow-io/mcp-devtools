@@ -373,7 +373,9 @@ const server = await createServer({
 
 ## 📄 License
 
-ISC License
+Copyright (c) 2025 mpcnow.io. All rights reserved.
+
+Licensed under the MIT license.
 
 ## 🔗 Related Links
 
