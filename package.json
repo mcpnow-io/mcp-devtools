@@ -1,0 +1,71 @@
+{
+  "name": "@mcp-now/mcp-devtools",
+  "version": "1.0.1",
+  "main": "dist/client.esm.js",
+  "type": "module",
+  "bin": {
+    "mcp-client": "bin/client.js",
+    "mcp-server": "bin/server.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "run:server:sse": "tsx src/cli/server.ts -t sse -v --interactive",
+    "run:server:stdio": "tsx src/cli/server.ts -t stdio -v --interactive",
+    "run:server:http": "tsx src/cli/server.ts -t http --interactive",
+    "run:server:http:interactive": "tsx src/cli/server.ts -t http -v --interactive",
+    "run:client:sse": "tsx src/cli/client.ts -t sse -v",
+    "run:client:sse:interactive": "tsx src/cli/client.ts -t sse -v --interactive",
+    "run:client:stdio": "tsx src/cli/client.ts -t stdio -v",
+    "run:client:http": "tsx src/cli/client.ts -t http -v",
+    "run:client:interactive": "tsx src/cli/client.ts -t sse -v --interactive",
+    "run:client:stdio:everything": "tsx src/cli/client.ts -t stdio -c 'npx -y @modelcontextprotocol/server-everything' --interactive",
+    "run:client:sse:everything": "tsx src/cli/client.ts -t sse -u http://localhost:3001/sse --interactive",
+    "run:client:http:everything": "tsx src/cli/client.ts -t http -u http://localhost:3001/mcp --interactive"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "lodash-es": "^4.17.21",
+    "readline": "^1.3.0",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.18",
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "tsx": "^4.20.3",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.0.0",
+    "vitest": "^2.1.8"
+  },
+  "exports": {
+    "./client": {
+      "import": "./dist/client.esm.js",
+      "types": "./dist/client.d.ts"
+    },
+    "./server": {
+      "import": "./dist/server.esm.js",
+      "types": "./dist/server.d.ts"
+    }
+  }
+}

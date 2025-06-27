@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "declarationDir": "dist/types",
+    "emitDeclarationOnly": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@mcp-now/mcp-devtools/*": ["./*"]
+    }
+  },
+  "include": [
+    "./mcp_server.config.js",
+    "src/cli/**/*",
+    "src/client/**/*",
+    "src/server/**/*",
+    "src/utils/**/*",
+    "src/transport/**/*",
+    "src/options/**/*",
+    "src/**/__test__/**/*",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+} 
