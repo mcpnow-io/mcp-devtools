@@ -1,7 +1,7 @@
 {
   "name": "@mcp-now/mcp-devtools",
-  "version": "0.0.1-alpha.1",
-  "main": "dist/client.esm.js",
+  "version": "1.0.0",
+  "main": "dist/client.js",
   "type": "module",
   "bin": {
     "mcp-client": "bin/client.js",
@@ -67,15 +67,6 @@
     "vite": "^5.0.0",
     "vite-plugin-dts": "^4.0.0",
     "vitest": "^2.1.8"
-  },
-  "exports": {
-    "./client": {
-      "import": "./dist/client.esm.js",
-      "types": "./dist/client.d.ts"
-    },
-    "./server": {
-      "import": "./dist/server.esm.js",
-      "types": "./dist/server.d.ts"
-    }
   }
+ 
 }

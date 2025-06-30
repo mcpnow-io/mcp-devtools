@@ -341,36 +341,6 @@ mcp-client> call-tool calculator {"operation": "+", "a": 5, "b": 3}
 - Check server configuration file syntax and logic
 - Test compatibility with different transport protocols
 
-## 📚 API Usage
-
-Besides command-line tools, you can also use these components in your code:
-
-```javascript
-import { createDevClient } from '@mcp-now/mcp-devtools/client';
-import { createServer } from '@mcp-now/mcp-devtools/server';
-
-// Create client
-const client = await createDevClient({
-  transport: {
-    clientType: 'http',
-    networkOptions: {
-      url: new URL('http://localhost:3000/mcp'),
-    },
-  },
-  name: 'my-client',
-  version: '1.0.0',
-});
-
-// Create server
-const server = await createServer({
-  name: 'my-server',
-  version: '1.0.0',
-  transport: 'http',
-  port: 3000,
-  configPath: './mcp_server.config.js',
-});
-```
-
 ## 📄 License
 
 Copyright (c) 2025 mpcnow.io. All rights reserved.

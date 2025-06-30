@@ -2,14 +2,14 @@ import 'reflect-metadata';
 
 import type { RequestOptions } from 'https';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import type { Transport } from '@modelcontextprotocol/sdk/shared/transport';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type {
   Implementation,
   JSONRPCMessage,
   Notification,
   Request,
   Result,
-} from '@modelcontextprotocol/sdk/types';
+} from '@modelcontextprotocol/sdk/types.js';
 import {
   CreateMessageRequestSchema,
   ListRootsRequestSchema,

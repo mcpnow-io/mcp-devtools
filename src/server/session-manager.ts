@@ -1,4 +1,4 @@
-import type { Transport } from '@modelcontextprotocol/sdk/shared/transport';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 
 import type { ServerOptions } from '.';
 import type { Logger } from '../utils/logger.js';
@@ -8,8 +8,8 @@ import { randomUUID } from 'node:crypto';
 import type {
   ReadResourceCallback,
   ReadResourceTemplateCallback,
-} from '@modelcontextprotocol/sdk/server/mcp';
-import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp';
+} from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 export type SessionInfo = {
   server: McpServer;

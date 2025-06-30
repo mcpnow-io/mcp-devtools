@@ -1,14 +1,14 @@
-import type { SSEClientTransportOptions } from '@modelcontextprotocol/sdk/client/sse';
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse';
-import type { StdioServerParameters } from '@modelcontextprotocol/sdk/client/stdio';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio';
-import type { StreamableHTTPClientTransportOptions } from '@modelcontextprotocol/sdk/client/streamableHttp';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp';
-import type { Transport, TransportSendOptions } from '@modelcontextprotocol/sdk/shared/transport';
-import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types';
+import type { SSEClientTransportOptions } from '@modelcontextprotocol/sdk/client/sse.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import type { StdioServerParameters } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import type { StreamableHTTPClientTransportOptions } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import type { Transport, TransportSendOptions } from '@modelcontextprotocol/sdk/shared/transport.js';
+import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { pick } from 'lodash-es';
 
 import type {

@@ -4,11 +4,11 @@ import type { SupportTransports } from '../options/index.js';
 import { type Logger } from '../utils/logger.js';
 import express from 'express';
 import cors from 'cors';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp';
-import { InMemoryEventStore } from '@modelcontextprotocol/sdk/examples/shared/inMemoryEventStore';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { InMemoryEventStore } from '@modelcontextprotocol/sdk/examples/shared/inMemoryEventStore.js';
 import { randomUUID } from 'node:crypto';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { createSessionManager } from './session-manager';
 
 export interface ServerOptions {
