@@ -21,6 +21,8 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'esm' : format}.js`,
     },
     outDir: 'dist',
+    target: 'node18',
+    minify: false,
     rollupOptions: {
       external: [
         ...(Object.keys(dependencies) ?? []),
@@ -32,9 +34,26 @@ export default defineConfig({
         'async_hooks',
         'path',
         'child_process',
+        'buffer',
+        'util',
+        'stream',
+        'events',
+        'crypto',
+        'os',
+        'readline',
       ],
+      output: {
+        globals: {
+          buffer: 'Buffer',
+          util: 'util',
+          stream: 'stream',
+          events: 'events',
+          crypto: 'crypto',
+          os: 'os',
+          readline: 'readline',
+        },
+      },
     },
-    target: 'es2020',
   },
   resolve: {
     alias: {
@@ -43,5 +62,9 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    'global': 'globalThis',
+  },
+  optimizeDeps: {
+    include: ['buffer'],
   },
 });

@@ -42,6 +42,9 @@ rollback() {
 # Trap errors to trigger rollback
 trap 'rollback' ERR
 
+echo "🧹 Clearing dist..."
+rm -rf dist
+
 # Build project
 echo "🔧 Building project..."
 npm run build
