@@ -34,7 +34,6 @@ export function createTestServerOptions(overrides: Partial<ServerOptions> = {}):
     description: 'Test MCP server',
     transport: 'http',
     port: 0,
-    configPath: 'src/server/__tests__/fixtures/test-config.js',
     pingInterval: '1000', // Shorter interval for testing
     interactive: false,
     ...overrides,

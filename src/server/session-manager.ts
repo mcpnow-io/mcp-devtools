@@ -58,7 +58,7 @@ export class SessionManager {
   async createNewServer(transport: Transport) {
     let config: Awaited<ReturnType<typeof loadMcpServerDefinition>>;
     try {
-      config = await loadMcpServerDefinition(this.serverOptions.configPath);
+      config = await loadMcpServerDefinition();
     } catch (error) {
       this.logger.error('Error loading configuration: ' + String(error));
       throw new Error(`Failed to load MCP server configuration: ${String(error)}`);

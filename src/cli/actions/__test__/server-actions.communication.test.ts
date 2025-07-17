@@ -489,7 +489,7 @@ describe('ServerActions - Communication Functions', () => {
           uri: testUri,
         });
         expect(testEnv.mockLogger.info).toHaveBeenCalledWith(
-          `Resource ${testUri} update notification sent`,
+          `Resource '${testUri}' update notification sent`,
         );
       });
 
