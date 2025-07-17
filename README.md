@@ -46,7 +46,6 @@ mcp-server -t <transport> [options]
 | `-t, --transport <type>` | Transport type (http/sse/stdio) | **Required** |
 | `-p, --port <port>` | HTTP server port (http/sse transport) | `3000` |
 | `-n, --name <name>` | Server name | `mcp-test-server` |
-| `-c, --config <path>` | Server configuration file path | `./mcp_server.config.js` |
 | `-i, --interactive` | Enable interactive mode | `false` |
 | `-v, --verbose` | Enable verbose logging | `false` |
 | `--ping-interval <ms>` | Ping interval in milliseconds | `30000` |
@@ -64,7 +63,7 @@ mcp-server -t sse -p 8080 -v --interactive
 mcp-server -t stdio -v --interactive
 
 # Use custom configuration file
-mcp-server -t http -c ./my-config.js --interactive
+mcp-server -t http --interactive
 ```
 
 ### MCP Client (`mcp-client`)
@@ -142,125 +141,6 @@ Both tools support interactive mode, providing real-time command-line interfaces
 
 - `help` - Show help information
 
-## ⚙️ Configuration
-
-### Server Configuration File
-
-Before creating the configuration file, you need to set up a Node.js project and install the required dependencies:
-
-```bash
-# Create a new directory for your MCP server
-mkdir my-mcp-server
-cd my-mcp-server
-
-# Initialize npm project
-npm init -y
-
-# Enable ES6 modules (required for the config file)
-npm pkg set type=module
-
-# Install required dependencies
-npm install zod
-
-#optional, if global has not installed
-npm install @mcp-now/mcp-devtools
-```
-
-Then create a `mcp_server.config.js` file to define server tools, resources, and prompts:
-
-```javascript
-import { z } from 'zod';
-
-export default {
-  tools: [
-    {
-      name: 'calculator',
-      description: 'A simple calculator tool',
-      parameters: {
-        operation: z.enum(['+', '-', '*', '/']).describe('Math operation (+, -, *, /)'),
-        a: z.number().describe('First number'),
-        b: z.number().describe('Second number'),
-      },
-      handler: async (args, extra) => {
-        const { operation, a, b } = args;
-        let result;
-
-        switch (operation) {
-          case '+': result = a + b; break;
-          case '-': result = a - b; break;
-          case '*': result = a * b; break;
-          case '/': result = a / b; break;
-          default: throw new Error(`Unknown operation: ${operation}`);
-        }
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Result: ${a} ${operation} ${b} = ${result}`,
-            },
-          ],
-        };
-      },
-    },
-  ],
-
-  resources: [
-    {
-      name: 'file-system',
-      description: 'Access to file system resources',
-      uri: 'file://resource/resource-file01',
-      handler: async (uri) => {
-        return {
-          contents: [
-            {
-              uri: uri,
-              mimeType: 'text/plain',
-              text: `Content of ${uri}`,
-            },
-          ],
-        };
-      },
-    },
-  ],
-
-  prompts: [
-    {
-      name: 'greeting',
-      description: 'Generate a greeting message',
-      parameters: {
-        name: z.string().describe('Name of the person to greet'),
-        language: z.string().default('en').describe('Language for greeting'),
-      },
-      handler: async (args) => {
-        const greetings = {
-          en: 'Hello',
-          es: 'Hola',
-          fr: 'Bonjour',
-          de: 'Hallo',
-        };
-
-        const greeting = greetings[args.language] || greetings.en;
-
-        return {
-          description: `A greeting for ${args.name}`,
-          messages: [
-            {
-              role: 'user',
-              content: {
-                type: 'text',
-                text: `${greeting}, ${args.name}! How are you today?`,
-              },
-            },
-          ],
-        };
-      },
-    },
-  ],
-}
-```
-
-> **Note**: The configuration file uses ES6 modules and requires the `zod` package for parameter validation. Make sure your `package.json` includes `"type": "module"` or use `.mjs` extension for the config file.
 
 ## 🔄 Transport Protocols
 
@@ -333,6 +213,32 @@ npx mcp-client -t http --interactive
 mcp-client> list-tools
 mcp-client> call-tool calculator {"operation": "+", "a": 5, "b": 3}
 ```
+
+### Publish
+
+Follow these steps when you are ready to release a new version to npm:
+
+1. **Update version & create git tag**
+
+   Bump the package version (choose `patch`, `minor`, or `major` as appropriate):
+
+   ```bash
+   npm version <patch|minor|major>
+   # or with pnpm
+   # pnpm version <patch|minor|major>
+   ```
+
+   The command will automatically create a git commit and a corresponding tag, e.g. `v1.2.3`.
+
+   Push the commit and the tag:
+
+   ```bash
+   git push origin main --follow-tags
+   ```
+
+2. ** Push tag to remote **
+
+  git push origin <tag-name>
 
 ### Debugging Tips
 
