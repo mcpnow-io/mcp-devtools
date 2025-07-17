@@ -10,6 +10,7 @@
   "files": [
     "bin",
     "dist",
+    "mcp_server.config.js",
     "package.json"
   ],
   "scripts": {
