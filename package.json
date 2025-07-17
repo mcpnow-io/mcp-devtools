@@ -1,6 +1,6 @@
 {
   "name": "@mcp-now/mcp-devtools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/client.js",
   "type": "module",
   "bin": {
