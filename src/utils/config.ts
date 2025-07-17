@@ -1,6 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+
 
 export const ToolConfigSchema = z.object({
   name: z.string(),
@@ -42,8 +44,14 @@ export const ServerConfigSchema = z.object({
 });
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 
-export const loadMcpServerDefinition = async (configPath: string): Promise<ServerConfig> => {
-  const absPath = path.resolve(process.cwd(), configPath);
+// Default configuration file path used when no explicit path is supplied
+  
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const loadMcpServerDefinition = async (
+): Promise<ServerConfig> => {
+  const absPath = path.resolve(__dirname, "../../mcp_server.config.js"); 
   if (!fs.existsSync(absPath)) {
     throw new Error(`Config file ${absPath} not found`);
   }
@@ -51,6 +59,6 @@ export const loadMcpServerDefinition = async (configPath: string): Promise<Serve
     const config = await import(absPath);
     return ServerConfigSchema.parse(config.default);
   } catch (e) {
-    throw new Error(`Error importing config file ${configPath}: ${e}`);
+    throw new Error(`Error importing config file ${absPath}: ${e}`);
   }
 };

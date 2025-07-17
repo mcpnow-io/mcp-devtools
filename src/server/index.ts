@@ -17,7 +17,6 @@ export interface ServerOptions {
   description: string;
   transport: SupportTransports;
   port: number;
-  configPath: string;
   pingInterval: string;
   interactive: boolean;
 }

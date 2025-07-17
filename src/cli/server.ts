@@ -28,7 +28,6 @@ program
   .requiredOption('-t, --transport <type>', 'Transport type (http/sse/stdio)')
   .option('-p, --port <port>', 'Port for HTTP server (http/sse transport)', '3000')
   .option('-n, --name <name>', 'Server name', 'mcp-test-server')
-  .option('-c, --config <path>', 'Path to server configuration file', './mcp_server.config.js')
   .option('-i, --interactive', 'Enable interactive mode')
   .option('-v, --verbose', 'Enable verbose message logging', false)
   .option(
@@ -40,8 +39,6 @@ program
 program.parse(process.argv);
 const cliOptions = program.opts();
 
-console.log(cliOptions);
-
 // Convert to CLIServerOptions format
 const serverOptions: CLIServerOptions = {
   name: cliOptions.name,
@@ -49,11 +46,11 @@ const serverOptions: CLIServerOptions = {
   description: 'MCP server CLI with interactive commands',
   transport: cliOptions.transport,
   port: parseInt(cliOptions.port),
-  configPath: cliOptions.config,
   interactive: cliOptions.interactive,
   verbose: cliOptions.verbose,
   pingInterval: cliOptions.pingInterval,
 };
+
 
 async function main() {
   try {
@@ -74,13 +71,12 @@ async function main() {
       version: serverOptions.version,
       description: serverOptions.description,
       transport,
-      configPath: serverOptions.configPath,
       interactive: serverOptions.interactive,
       pingInterval: serverOptions.pingInterval,
       port: serverOptions.port,
     };
 
-    const serverDefinition = loadMcpServerDefinition(serverConfig.configPath);
+    const serverDefinition = loadMcpServerDefinition();
 
     container.register('Logger', { useValue: logger });
     container.register('ServerOptions', { useValue: serverConfig });

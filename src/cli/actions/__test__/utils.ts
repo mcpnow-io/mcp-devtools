@@ -14,7 +14,6 @@ export const createMockCLIServerOptions = (
   description: 'Test server',
   transport: 'stdio',
   port: 3000,
-  configPath: '/test/config.json',
   interactive: false,
   verbose: false,
   pingInterval: '30',
