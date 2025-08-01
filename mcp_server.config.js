@@ -59,6 +59,59 @@ export default {
         };
       },
     },
+    {
+      name: 'long-time-run',
+      description: 'Wait for specified seconds before returning (for testing timeouts)',
+      parameters: {
+        timeSecs: z.number().describe('Time to wait in seconds'),
+      },
+      handler: async (args, extra) => {
+        const { timeSecs } = args;
+        
+        // Wait for the specified time
+        await new Promise(resolve => setTimeout(resolve, timeSecs * 1000));
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Waited for ${timeSecs} seconds`,
+            },
+          ],
+        };
+      },
+    },
+    {
+      name: 'long-response',
+      description: 'Return a response of specified length in bytes (for testing different response sizes)',
+      parameters: {
+        length: z.number().describe('Response length in bytes'),
+      },
+      handler: async (args, extra) => {
+        const { length } = args;
+        
+        // Generate a response of the specified length
+        // Using a pattern to make it somewhat readable
+        const pattern = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let response = '';
+        
+        while (response.length < length) {
+          response += pattern;
+        }
+        
+        // Trim to exact length
+        response = response.substring(0, length);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: response,
+            },
+          ],
+        };
+      },
+    },
   ],
 
   resources: [

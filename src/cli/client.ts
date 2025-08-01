@@ -5,7 +5,7 @@ import { container } from 'tsyringe';
 
 import { version as cliVersion } from '../../package.json';
 import type { ClientActionsOptions } from './actions/client-actions';
-import { allSupportedCommandsVariables, ClientActions } from './actions/client-actions';
+import { ClientActions } from './actions/client-actions';
 import { createLogger } from '@/utils/logger';
 
 const CLIENT_NAME = 'mcp-dev-client';
@@ -18,7 +18,7 @@ async function main() {
 
   // Connection options
   program
-    .option('-t, --transport <type>', 'Transport type: http/sse/stdio)')
+    .option('-t, --transport <type>', 'Transport type: http/sse/stdio)', 'sse')
     .option('-u, --url <url>', 'URL for HTTP/SSE transport (e.g., http://localhost:3000/sse)')
     .option('-c, --command <command>', 'Full command line for stdio transport')
     .option('-e, --env <env>', 'JSON string of environment variables for stdio transport')
@@ -54,6 +54,14 @@ async function main() {
     options.url ??= 'http://localhost:3000/sse';
   }
 
+
+
+  if (options.url?.endsWith('sse')){
+    options.transport = 'sse'
+  } else if (options.url){
+    options.transport = 'http'
+  }
+
   container.register('Logger', {
     useValue: createLogger({
       verbose: options.verbose,
@@ -65,17 +73,15 @@ async function main() {
   const actions = new ClientActions(options);
   await actions.initializeClient();
 
-  if (options.interactive) {
+  // Check if any action flags are provided
+  const hasActionFlags = options.listTools || options.listResources || options.listPrompts || 
+                        options.callTool || options.readResource || options.getPrompt;
+
+  // Default to interactive mode if no action flags are provided
+  if (options.interactive || !hasActionFlags) {
     actions.runInteractiveMode();
   } else {
     try {
-      const action = allSupportedCommandsVariables.find(
-        (cmd) => options[cmd as keyof ClientActionsOptions],
-      );
-      if (!action) {
-        console.error(`Invalid command: ${options.command}`);
-        process.exit(1);
-      }
       if (options.listTools) {
         await actions.listTools();
       }
