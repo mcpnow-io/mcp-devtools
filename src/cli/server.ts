@@ -25,10 +25,9 @@ program
 
 // Server options
 program
-  .requiredOption('-t, --transport <type>', 'Transport type (http/sse/stdio)')
+  .option('-t, --transport <type>', 'Transport type (http/sse/stdio)', 'sse')
   .option('-p, --port <port>', 'Port for HTTP server (http/sse transport)', '3000')
   .option('-n, --name <name>', 'Server name', 'mcp-test-server')
-  .option('-i, --interactive', 'Enable interactive mode')
   .option('-v, --verbose', 'Enable verbose message logging', false)
   .option(
     '--ping-interval <ms>',
@@ -46,7 +45,7 @@ const serverOptions: CLIServerOptions = {
   description: 'MCP server CLI with interactive commands',
   transport: cliOptions.transport,
   port: parseInt(cliOptions.port),
-  interactive: cliOptions.interactive,
+  interactive: true,
   verbose: cliOptions.verbose,
   pingInterval: cliOptions.pingInterval,
 };
