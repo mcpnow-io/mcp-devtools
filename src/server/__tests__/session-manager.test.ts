@@ -6,21 +6,12 @@ import type { ServerOptions } from '../index.js';
 import { createSessionManager, SessionManager } from '../session-manager.js';
 import {
   cleanupTestContainer,
-  createDefaultTestConfig,
   createMockLogger,
   createMockTransport,
   createTestServerOptions,
   setupTestContainer,
 } from './helpers.js';
 
-// Mock config loading module so we can control config content
-vi.mock('../../utils/config.js', async () => {
-  const actual = await vi.importActual('../../utils/config.js');
-  return {
-    ...actual,
-    loadMcpServerDefinition: vi.fn(),
-  };
-});
 
 // Mock McpServer
 vi.mock('@modelcontextprotocol/sdk/server/mcp', () => ({
@@ -103,92 +94,9 @@ describe('SessionManager', () => {
     });
   });
 
-  describe('Configuration Loading and Server Creation', () => {
-    beforeEach(async () => {
-      // Dynamically import config module and set up mock
-      const configModule = await import('../../utils/config.js');
-      vi.mocked(configModule.loadMcpServerDefinition).mockResolvedValue(createDefaultTestConfig());
-
-      // Ensure McpServer mock contains all necessary methods
-      const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp');
-      // @ts-expect-error for test
-      vi.mocked(McpServer).mockImplementation(() => {
-        return {
-          server: {
-            transport: null, // This will be set after connect
-            oninitialized: null,
-            onerror: null,
-            ping: vi.fn(),
-            listRoots: vi.fn(),
-            createMessage: vi.fn(),
-            sendResourceListChanged: vi.fn(),
-            sendPromptListChanged: vi.fn(),
-          },
-          tool: vi.fn().mockReturnValue(undefined),
-          resource: vi.fn().mockReturnValue(undefined),
-          prompt: vi.fn().mockReturnValue(undefined),
-          connect: vi.fn().mockImplementation(async function (transport) {
-            // Mock connect behavior: set transport
-            // @ts-expect-error for test
-            this.server.transport = transport;
-          }),
-          close: vi.fn().mockReturnValue(undefined),
-        };
-      });
-    });
-
-    it('should be able to create new MCP server', async () => {
-      const mockTransport = createMockTransport();
-
-      const server = await sessionManager.createNewServer(mockTransport as any);
-
-      expect(server).toBeDefined();
-      expect(server.connect).toHaveBeenCalledWith(mockTransport);
-      expect(sessionManager.hasSession(mockTransport.sessionId)).toBe(true);
-    });
-
-    it('should skip invalid tool configurations', async () => {
-      const configModule = await import('../../utils/config.js');
-      vi.mocked(configModule.loadMcpServerDefinition).mockResolvedValue({
-        tools: [
-          // @ts-expect-error for test
-          { name: '', description: 'Invalid tool' }, // Missing required fields
-          { name: 'valid-tool', description: 'Valid', parameters: {}, handler: vi.fn() },
-        ],
-      });
-
-      const mockTransport = createMockTransport();
-      await sessionManager.createNewServer(mockTransport as any);
-
-      expect(mockLogger.warn).toHaveBeenCalledWith('Skipping invalid tool configuration: ');
-    });
-
-    it('should skip invalid resource configurations', async () => {
-      const configModule = await import('../../utils/config.js');
-      vi.mocked(configModule.loadMcpServerDefinition).mockResolvedValue({
-        resources: [
-          // @ts-expect-error for test
-          { name: 'no-uri-or-template', description: 'Invalid' }, // Missing URI and template
-          { name: 'valid-resource', description: 'Valid', uri: 'test://valid', handler: vi.fn() },
-        ],
-      });
-
-      const mockTransport = createMockTransport();
-      await sessionManager.createNewServer(mockTransport as any);
-
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Skipping invalid resource configuration: no-uri-or-template',
-      );
-    });
-  });
-
   describe('Ping Mechanism Tests', () => {
     it('should set ping timer', async () => {
       vi.useFakeTimers();
-
-      const configModule = await import('../../utils/config.js');
-      // @ts-expect-error for test
-      vi.mocked(configModule.loadMcpServerDefinition).mockResolvedValue({});
 
       const mockTransport = createMockTransport();
       const mockServer = {
@@ -222,10 +130,6 @@ describe('SessionManager', () => {
 
     it('should clean up timer on ping error', async () => {
       vi.useFakeTimers();
-
-      const configModule = await import('../../utils/config.js');
-      // @ts-expect-error for test
-      vi.mocked(configModule.loadMcpServerDefinition).mockResolvedValue({});
 
       const mockTransport = createMockTransport();
       const mockServer = {

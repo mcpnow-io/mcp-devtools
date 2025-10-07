@@ -8,7 +8,6 @@ import type {
 import chalk from "chalk";
 
 import type { DevServer } from "@/server";
-import { loadMcpServerDefinition } from "@/utils/config.js";
 import type { Logger } from "@/utils/logger";
 import { container, inject, injectable } from "tsyringe";
 
@@ -52,50 +51,15 @@ export const serverCommands = {
     usage: "list-tools",
     example: null,
   },
-  "add-tool": {
-    desc: "Add a tool defined in config",
-    usage: "add-tool <name>",
-    example: "add-tool calculator",
-  },
-  "remove-tool": {
-    desc: "Remove a tool by name",
-    usage: "remove-tool <name>",
-    example: "remove-tool calculator",
-  },
   "list-resources": {
     desc: "List registered resources",
     usage: "list-resources",
     example: null,
   },
-  "add-resource": {
-    desc: "Add a resource defined in config",
-    usage: "add-resource <name>",
-    example: "add-resource file-system",
-  },
-  "remove-resource": {
-    desc: "Remove a resource by name",
-    usage: "remove-resource <name>",
-    example: "remove-resource file-system",
-  },
-  "update-resource": {
-    desc: "Notify clients that a resource has been updated",
-    usage: "update-resource <uri>",
-    example: "update-resource file://README.md",
-  },
   "list-prompts": {
     desc: "List registered prompts",
     usage: "list-prompts",
     example: null,
-  },
-  "add-prompt": {
-    desc: "Add a prompt defined in config",
-    usage: "add-prompt <name>",
-    example: "add-prompt template",
-  },
-  "remove-prompt": {
-    desc: "Remove a prompt by name",
-    usage: "remove-prompt <name>",
-    example: "remove-prompt template",
   },
   ping: {
     desc: "Send ping to current session client",
@@ -201,22 +165,6 @@ export class ServerActions {
     @inject("Server") private server: DevServer
   ) {}
 
-  private async loadConfig() {
-    try {
-      this.currentConfig = await loadMcpServerDefinition();
-      this.logger.info(`📄 Configuration loaded successfully`);
-      container.register("ServerConfig", { useValue: this.currentConfig });
-    } catch (error) {
-      this.logger.error(`❌ Failed to load config: ${error}`);
-      this.currentConfig = { tools: [], resources: [], prompts: [] };
-    }
-  }
-
-  private async reloadConfig() {
-    await this.loadConfig();
-    this.logger.info("🔄 Configuration reloaded successfully");
-  }
-
   async listSessions() {
     const sessionIds = this.server.sessionManager.listServers();
     if (sessionIds.length === 0) {
@@ -289,43 +237,6 @@ export class ServerActions {
     this.logger.flushPrint();
   }
 
-  async addTool(name: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    const toolConfig = this.currentConfig.tools?.find(
-      (t: any) => t.name === name
-    );
-    if (!toolConfig) {
-      this.logger.error(`Tool '${name}' not found in config file`);
-      return;
-    }
-
-    currentSession.server.tool(
-      toolConfig.name,
-      toolConfig.description,
-      toolConfig.parameters,
-      toolConfig.handler
-    );
-    await currentSession.server.server.sendToolListChanged();
-    this.logger.info(`Tool '${name}' added from config and clients notified`);
-  }
-
-  async removeTool(name: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    delete (currentSession.server as any)["_registeredTools"][name];
-    await currentSession.server.server.sendToolListChanged();
-    this.logger.info(`Tool '${name}' removed and clients notified`);
-  }
-
   async listResources() {
     const currentSession = this.getCurrentSession();
     if (!currentSession) {
@@ -349,69 +260,6 @@ export class ServerActions {
     this.logger.flushPrint();
   }
 
-  async addResource(name: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    const resourceConfig = this.currentConfig.resources?.find(
-      (r: any) => r.name === name
-    );
-    if (!resourceConfig) {
-      this.logger.error(`Resource '${name}' not found in config file`);
-      return;
-    }
-
-    if (resourceConfig.template) {
-      const template = new ResourceTemplate(
-        resourceConfig.template.uri,
-        resourceConfig.template.options as any
-      );
-      currentSession.server.resource(
-        resourceConfig.name,
-        template,
-        { description: resourceConfig.description },
-        resourceConfig.handler as ReadResourceTemplateCallback
-      );
-    } else if (resourceConfig.uri) {
-      currentSession.server.resource(
-        resourceConfig.name,
-        resourceConfig.uri,
-        { description: resourceConfig.description },
-        resourceConfig.handler as ReadResourceCallback
-      );
-    }
-    await currentSession.server.server.sendResourceListChanged();
-    this.logger.info(
-      `Resource '${name}' added from config and clients notified`
-    );
-  }
-
-  async removeResource(name: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    delete (currentSession.server as any)["_registeredResources"][name];
-    await currentSession.server.server.sendResourceListChanged();
-    this.logger.info(`Resource '${name}' removed and clients notified`);
-  }
-
-  async updateResource(uri: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    await currentSession.server.server.sendResourceUpdated({ uri });
-    this.logger.info(`Resource '${uri}' update notification sent`);
-  }
-
   async listPrompts() {
     const currentSession = this.getCurrentSession();
     if (!currentSession) {
@@ -429,43 +277,6 @@ export class ServerActions {
       );
     });
     this.logger.flushPrint();
-  }
-
-  async addPrompt(name: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    const promptConfig = this.currentConfig.prompts?.find(
-      (p: any) => p.name === name
-    );
-    if (!promptConfig) {
-      this.logger.error(`Prompt '${name}' not found in config file`);
-      return;
-    }
-
-    currentSession.server.prompt(
-      promptConfig.name,
-      promptConfig.description,
-      promptConfig.parameters,
-      promptConfig.handler
-    );
-    await currentSession.server.server.sendPromptListChanged();
-    this.logger.info(`Prompt '${name}' added from config and clients notified`);
-  }
-
-  async removePrompt(name: string) {
-    const currentSession = this.getCurrentSession();
-    if (!currentSession) {
-      this.logger.error("No current session selected");
-      return;
-    }
-
-    delete (currentSession.server as any)["_registeredPrompts"][name];
-    await currentSession.server.server.sendPromptListChanged();
-    this.logger.info(`Prompt '${name}' removed and clients notified`);
   }
 
   async ping() {
@@ -682,78 +493,6 @@ export class ServerActions {
           return [completions, line];
         }
 
-        // Complete tool names
-        if (
-          (command === "add-tool" || command === "remove-tool") &&
-          words.length === 2
-        ) {
-          let completions: string[] = [];
-          const currentSession = this.getCurrentSession();
-          if (currentSession) {
-            if (command === "add-tool") {
-              completions = getConfigTools(this.currentConfig).filter(
-                (name) =>
-                  !getRegisteredTools(currentSession.server).includes(name)
-              );
-            } else {
-              completions = getRegisteredTools(currentSession.server);
-            }
-          }
-          return [
-            completions.filter((name) => name.startsWith(lastWord)),
-            lastWord,
-          ];
-        }
-
-        // Complete resource names
-        if (
-          (command === "add-resource" ||
-            command === "remove-resource" ||
-            command === "update-resource" ||
-            command === "resource-update") &&
-          words.length === 2
-        ) {
-          let completions: string[] = [];
-          const currentSession = this.getCurrentSession();
-          if (currentSession) {
-            if (command === "add-resource") {
-              completions = getConfigResources(this.currentConfig).filter(
-                (name) =>
-                  !getRegisteredResources(currentSession.server).includes(name)
-              );
-            } else {
-              completions = getRegisteredResources(currentSession.server);
-            }
-          }
-          return [
-            completions.filter((name) => name.startsWith(lastWord)),
-            lastWord,
-          ];
-        }
-
-        // Complete prompt names
-        if (
-          (command === "add-prompt" || command === "remove-prompt") &&
-          words.length === 2
-        ) {
-          let completions: string[] = [];
-          const currentSession = this.getCurrentSession();
-          if (currentSession) {
-            if (command === "add-prompt") {
-              completions = getConfigPrompts(this.currentConfig).filter(
-                (name) =>
-                  !getRegisteredPrompts(currentSession.server).includes(name)
-              );
-            } else {
-              completions = getRegisteredPrompts(currentSession.server);
-            }
-          }
-          return [
-            completions.filter((name) => name.startsWith(lastWord)),
-            lastWord,
-          ];
-        }
-
         // Complete log levels
         if (command === "log" && words.length === 2) {
           const levels = [
@@ -845,76 +584,13 @@ export class ServerActions {
             break;
           }
 
-          case "add-tool": {
-            if (!args[0]) {
-              this.logger.error("Error: Tool name required");
-              break;
-            }
-            await this.addTool(args[0]);
-            break;
-          }
-
-          case "remove-tool": {
-            if (!args[0]) {
-              this.logger.error("Error: Tool name required");
-              break;
-            }
-            await this.removeTool(args[0]);
-            break;
-          }
-
           case "list-resources": {
             await this.listResources();
             break;
           }
 
-          case "add-resource": {
-            if (!args[0]) {
-              this.logger.error("Error: Resource name required");
-              break;
-            }
-            await this.addResource(args[0]);
-            break;
-          }
-
-          case "remove-resource": {
-            if (!args[0]) {
-              this.logger.error("Error: Resource name required");
-              break;
-            }
-            await this.removeResource(args[0]);
-            break;
-          }
-
-          case "update-resource": {
-            if (!args[0]) {
-              this.logger.error("Error: Resource URI required");
-              break;
-            }
-            await this.updateResource(args[0]);
-            break;
-          }
-
           case "list-prompts": {
             await this.listPrompts();
-            break;
-          }
-
-          case "add-prompt": {
-            if (!args[0]) {
-              this.logger.error("Error: Prompt name required");
-              break;
-            }
-            await this.addPrompt(args[0]);
-            break;
-          }
-
-          case "remove-prompt": {
-            if (!args[0]) {
-              this.logger.error("Error: Prompt name required");
-              break;
-            }
-            await this.removePrompt(args[0]);
             break;
           }
 
@@ -961,11 +637,6 @@ export class ServerActions {
             const level = args[0] || "info";
             const message = args.slice(1).join(" ") || "Hello, world!";
             await this.sendLog(level, message);
-            break;
-          }
-
-          case "reload-config": {
-            await this.reloadConfig();
             break;
           }
 

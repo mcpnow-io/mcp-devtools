@@ -47,7 +47,7 @@ const createMockOptions = (
 ): ClientActionsOptions => ({
   version: '1.0.0',
   transport: 'network',
-  url: 'http://localhost:3000',
+  url: 'http://localhost:8010',
   command: '',
   env: '',
   pipeStderr: false,

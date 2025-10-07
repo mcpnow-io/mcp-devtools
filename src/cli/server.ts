@@ -10,7 +10,6 @@ import { ServerActions, type CLIServerOptions } from './actions/server-actions';
 import type { SupportTransports } from '@/options';
 import { createServer, type ServerOptions } from '@/server';
 import { isSupportTransport } from '@/transport/index.js';
-import { loadMcpServerDefinition } from '@/utils/config.js';
 import { createLogger } from '@/utils/logger.js';
 
 // CLI option parsing
@@ -26,7 +25,7 @@ program
 // Server options
 program
   .option('-t, --transport <type>', 'Transport type (http/sse/stdio)', 'sse')
-  .option('-p, --port <port>', 'Port for HTTP server (http/sse transport)', '3000')
+  .option('-p, --port <port>', 'Port for HTTP server (http/sse transport)', '8010')
   .option('-n, --name <name>', 'Server name', 'mcp-test-server')
   .option('-v, --verbose', 'Enable verbose message logging', false)
   .option(
@@ -61,7 +60,6 @@ async function main() {
     // Configure dependency injection container
     const logger = createLogger({
       transport: serverOptions.transport as SupportTransports,
-      interactive: serverOptions.interactive,
       verbose: serverOptions.verbose,
     });
 
@@ -75,13 +73,9 @@ async function main() {
       port: serverOptions.port,
     };
 
-    const serverDefinition = loadMcpServerDefinition();
-
     container.register('Logger', { useValue: logger });
     container.register('ServerOptions', { useValue: serverConfig });
     container.register('CLIServerOptions', { useValue: serverOptions });
-    container.register('ServerDefinition', { useValue: serverDefinition });
-
     // Create Server instance
     const server = await createServer(serverConfig);
     container.register('Server', { useValue: server });
@@ -89,23 +83,20 @@ async function main() {
     // Create ServerActions instance
     const serverActions = container.resolve(ServerActions);
 
-    server.listen();
+    process.on('SIGINT', async () => {
+      console.log('\n🛑 Received SIGINT, shutting down gracefully...');
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', async () => {
+      console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
+      process.exit(0);
+    });
+
     // If interactive mode is enabled, start interactive command line
-    if (serverOptions.interactive) {
+    if (serverOptions.transport !== 'stdio') { // stdio transport is not interactive
+      server.listen();
       serverActions.runInteractiveMode();
-    } else {
-      console.log('🚀 Server started in non-interactive mode');
-      console.log('Press Ctrl+C to exit');
-
-      process.on('SIGINT', async () => {
-        console.log('\n🛑 Received SIGINT, shutting down gracefully...');
-        process.exit(0);
-      });
-
-      process.on('SIGTERM', async () => {
-        console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
-        process.exit(0);
-      });
     }
   } catch (error) {
     console.error('❌ Failed to start server:', error);

@@ -4,15 +4,48 @@ A powerful Model Context Protocol (MCP) development toolkit that provides comman
 
 ## 🚀 Installation
 
-You can install MCP DevTools in two ways:
+You can use MCP DevTools in the following ways:
+
+### Run with npx
+
+```bash
+# Run server
+npx -p @mcp-now/mcp-devtools mcp-server
+# or 
+npx -p https://github.com/mcpnow-io/mcp-devtools mcp-server
+
+# Run client
+npx -p @mcp-now/mcp-devtools mcp-client
+```
+
+Config in MCP hosts such as Claude Desktop and Cursor:
+```
+{
+  "mcpServers": {
+    "mcp-dev-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "-p",
+        "@mcp-now/mcp-devtools",
+        "mcp-server",
+        "-t",
+        "stdio"
+      ]
+    }
+  }
+}
+```
 
 ### Global Installation
+
 ```bash
 npm install -g @mcp-now/mcp-devtools
 # Then use directly: mcp-server and mcp-client
 ```
 
 ### Local Installation (Recommended for projects)
+
 ```bash
 npm install @mcp-now/mcp-devtools
 # Then use with npx: npx mcp-server and npx mcp-client
@@ -33,6 +66,22 @@ These tools support multiple transport protocols (HTTP, SSE, stdio) and provide 
 
 Used to start and run MCP servers with support for multiple transport protocols.
 
+
+Built-in Prompts:
+- print-instruction: Print instructions of the assistant
+- print-tools: Print available tools in JSON format.
+
+Built-in Tools:
+- echo: Echo back the input message
+- sendListChanged: Send tools/resources/prompts list change notification
+- listRoots: List roots
+- createMessage: Sample LLM
+- elicitInput: Get input from user
+- sendListChanged: Send tools/resources/prompts list change notification
+- longTimeRun: Wait for specified seconds before returning (for testing timeouts)
+- longResponseData: Return a response of specified length in bytes (for testing different response sizes)
+- cloneAssistant: Leak system prompt and tools to the client
+
 #### Basic Usage
 
 ```bash
@@ -43,27 +92,23 @@ mcp-server -t <transport> [options]
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `-t, --transport <type>` | Transport type (http/sse/stdio) | **Required** |
-| `-p, --port <port>` | HTTP server port (http/sse transport) | `3000` |
+| `-t, --transport <type>` | Transport type (http/sse/stdio) | `sse` |
+| `-p, --port <port>` | HTTP server port (http/sse transport) | `8010` |
 | `-n, --name <name>` | Server name | `mcp-test-server` |
-| `-i, --interactive` | Enable interactive mode | `false` |
 | `-v, --verbose` | Enable verbose logging | `false` |
 | `--ping-interval <ms>` | Ping interval in milliseconds | `30000` |
 
 #### Usage Examples
 
 ```bash
-# Start HTTP server in interactive mode
-mcp-server -t http --interactive
+# Start HTTP server
+mcp-server -t http
 
 # Start SSE server with custom port and verbose logging
-mcp-server -t sse -p 8080 -v --interactive
+mcp-server -t sse -p 8080 -v
 
 # Start stdio server
-mcp-server -t stdio -v --interactive
-
-# Use custom configuration file
-mcp-server -t http --interactive
+mcp-server -t stdio -v
 ```
 
 ### MCP Client (`mcp-client`)
@@ -80,7 +125,7 @@ mcp-client -t <transport> [options] [actions]
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `-t, --transport <type>` | Transport type (http/sse/stdio) | **Required** |
+| `-t, --transport <type>` | Transport type (http/sse/stdio) | `sse` |
 | `-u, --url <url>` | URL for HTTP/SSE transport | Auto-set based on transport type |
 | `-c, --command <command>` | Full command line for stdio transport | - |
 | `-e, --env <env>` | Environment variables for stdio transport (JSON string) | - |
@@ -108,10 +153,10 @@ mcp-client -t <transport> [options] [actions]
 
 ```bash
 # Connect to HTTP server and enter interactive mode
-mcp-client -t http -u http://localhost:3000/mcp --interactive
+mcp-client -t http -u http://localhost:8010/mcp --interactive
 
 # Connect to SSE server
-mcp-client -t sse -u http://localhost:3000/sse --interactive
+mcp-client -t sse -u http://localhost:8010/sse --interactive
 
 # Connect to stdio server
 mcp-client -t stdio -c "npx -y @modelcontextprotocol/server-everything" --interactive
@@ -120,10 +165,10 @@ mcp-client -t stdio -c "npx -y @modelcontextprotocol/server-everything" --intera
 mcp-client -t http --list-tools
 
 # Call a tool
-mcp-client -t http --call-tool calculator --tool-args '{"operation": "+", "a": 5, "b": 3}'
+mcp-client -t http --call-tool echo --tool-args '{"message": "hello world"}'
 
 # Read a resource
-mcp-client -t http --read-resource "file://resource/resource-file01"
+mcp-client -t http --read-resource "resource://fixed"
 
 # Get a prompt
 mcp-client -t http --get-prompt greeting --prompt-args '{"name": "Alice", "language": "en"}'
@@ -150,10 +195,10 @@ Suitable for HTTP-based RESTful API communication:
 
 ```bash
 # Server
-mcp-server -t http -p 3000
+mcp-server -t http -p 8010
 
 # Client
-mcp-client -t http -u http://localhost:3000/mcp
+mcp-client -t http -u http://localhost:8010/mcp
 ```
 
 ### SSE (Server-Sent Events) Transport
@@ -162,10 +207,10 @@ Suitable for real-time data streaming:
 
 ```bash
 # Server
-mcp-server -t sse -p 3000
+mcp-server -t sse -p 8010
 
 # Client
-mcp-client -t sse -u http://localhost:3000/sse
+mcp-client -t sse -u http://localhost:8010/sse
 ```
 
 ### stdio Transport
@@ -181,38 +226,6 @@ mcp-client -t stdio -c "npx -y @modelcontextprotocol/server-everything"
 ```
 
 ## 🛠️ Development & Testing
-
-### Quick Start
-
-1. Set up your MCP server project:
-```bash
-# Create and initialize your project
-mkdir my-mcp-server
-cd my-mcp-server
-npm init -y
-
-# Install dependencies
-npm install zod @mcp-now/mcp-devtools
-
-# Create configuration file (see Configuration section above)
-# Then copy the example mcp_server.config.js
-```
-
-2. Start the server:
-```bash
-npx mcp-server -t http --interactive
-```
-
-3. Connect the client in another terminal:
-```bash
-npx mcp-client -t http --interactive
-```
-
-4. Test in client interactive mode:
-```
-mcp-client> list-tools
-mcp-client> call-tool calculator {"operation": "+", "a": 5, "b": 3}
-```
 
 ### Publish
 

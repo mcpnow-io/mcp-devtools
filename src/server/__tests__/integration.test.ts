@@ -11,20 +11,12 @@ import {
   setupTestContainer,
 } from './helpers.js';
 
-// Mock actual configuration file
-vi.mock('../../utils/config.js', () => ({
-  loadMcpServerDefinition: vi.fn(),
-}));
 
 describe('Server Integration Tests', () => {
   let mockLogger: ReturnType<typeof createMockLogger>;
 
   beforeEach(async () => {
     mockLogger = createMockLogger();
-
-    // Set up default configuration mock
-    const configModule = await import('../../utils/config.js');
-    vi.mocked(configModule.loadMcpServerDefinition).mockResolvedValue(createDefaultTestConfig());
   });
 
   afterEach(() => {
@@ -109,32 +101,6 @@ describe('Server Integration Tests', () => {
 
       // Verify tools, resources, and prompts are properly registered
       expect(mockLogger.warn).not.toHaveBeenCalledWith(expect.stringContaining('Skipping invalid'));
-
-      server.close();
-    });
-
-    it('should handle configuration loading errors', async () => {
-      // Mock configuration loading failure
-      const configModule = await import('../../utils/config.js');
-      vi.mocked(configModule.loadMcpServerDefinition).mockRejectedValueOnce(
-        new Error('Config file not found'),
-      );
-
-      const options = createTestServerOptions();
-      setupTestContainer(options, mockLogger);
-
-      const server = await createServer(options);
-
-      // Configuration loading error will be triggered when trying to create session
-      const mockTransport = {
-        sessionId: 'test-session',
-        close: vi.fn(),
-        start: vi.fn(),
-      };
-
-      await expect(server.sessionManager.createNewServer(mockTransport as any)).rejects.toThrow(
-        'Failed to load MCP server configuration',
-      );
 
       server.close();
     });

@@ -2,7 +2,6 @@ import { vi } from 'vitest';
 
 import type { CLIServerOptions } from '../server-actions';
 import type { DevServer } from '@/server';
-import type { ServerConfig } from '@/utils/config';
 import type { ILogger, Logger } from '@/utils/logger';
 
 // Mock CLIServerOptions
@@ -13,7 +12,7 @@ export const createMockCLIServerOptions = (
   version: '1.0.0',
   description: 'Test server',
   transport: 'stdio',
-  port: 3000,
+  port: 8010,
   interactive: false,
   verbose: false,
   pingInterval: '30',
@@ -30,44 +29,6 @@ export const createMockLogger = (): ILogger => ({
   print: vi.fn(),
   flushPrint: vi.fn(),
   logProtocolMessage: vi.fn(),
-});
-
-// Mock ServerConfig
-export const createMockServerConfig = (overrides: Partial<ServerConfig> = {}): ServerConfig => ({
-  tools: [
-    {
-      name: 'test-tool',
-      description: 'Test tool description',
-      parameters: {},
-      handler: vi.fn(),
-    },
-  ],
-  resources: [
-    {
-      name: 'test-resource',
-      description: 'Test resource description',
-      uri: 'test://resource',
-      handler: vi.fn(),
-    },
-    {
-      name: 'test-template-resource',
-      description: 'Test template resource',
-      template: {
-        uri: 'template://resource/{id}',
-        options: {},
-      },
-      handler: vi.fn(),
-    },
-  ],
-  prompts: [
-    {
-      name: 'test-prompt',
-      description: 'Test prompt description',
-      parameters: {},
-      handler: vi.fn(),
-    },
-  ],
-  ...overrides,
 });
 
 // Mock MCP Server
@@ -151,12 +112,10 @@ export const createTestEnvironment = () => {
   const mockOptions = createMockCLIServerOptions();
   const mockLogger = createMockLogger();
   const mockServer = createMockDevServer();
-  const mockConfig = createMockServerConfig();
 
   return {
     mockOptions,
     mockLogger,
-    mockServer,
-    mockConfig,
+    mockServer
   };
 };

@@ -34,7 +34,7 @@ describe('ClientActions Pagination Logic', () => {
     options = {
       version: '1.0.0',
       transport: 'http',
-      url: 'http://localhost:3000',
+      url: 'http://localhost:8010',
       command: '',
       env: '',
       pipeStderr: false,

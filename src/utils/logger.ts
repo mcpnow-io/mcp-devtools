@@ -12,7 +12,6 @@ export enum LogLevel {
 export interface LoggerOptions {
   name?: string;
   transport: 'http' | 'sse' | 'stdio';
-  interactive?: boolean;
   verbose?: boolean;
   prompt?: string;
   promptColor?: (text: string) => string;
@@ -117,12 +116,9 @@ export class Logger implements ILogger {
         console.error(this.printBuffer.join('\n'));
       } else {
         console.log(this.printBuffer.join('\n'));
-      }
-      this.printBuffer = [];
-
-      if (this.options.interactive) {
         process.stdout.write(this.coloredPrompt);
       }
+      this.printBuffer = [];
     }
   }
 

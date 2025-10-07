@@ -19,7 +19,7 @@ async function main() {
   // Connection options
   program
     .option('-t, --transport <type>', 'Transport type: http/sse/stdio)', 'sse')
-    .option('-u, --url <url>', 'URL for HTTP/SSE transport (e.g., http://localhost:3000/sse)')
+    .option('-u, --url <url>', 'URL for HTTP/SSE transport (e.g., http://localhost:8010/sse)')
     .option('-c, --command <command>', 'Full command line for stdio transport')
     .option('-e, --env <env>', 'JSON string of environment variables for stdio transport')
     .option('--pipe-stderr', 'Pipe stderr from the stdio child process (for debugging)')
@@ -49,9 +49,9 @@ async function main() {
   options.version = cliVersion;
 
   if (options.transport === 'http') {
-    options.url ??= 'http://localhost:3000/mcp';
+    options.url ??= 'http://localhost:8010/mcp';
   } else if (options.transport === 'sse') {
-    options.url ??= 'http://localhost:3000/sse';
+    options.url ??= 'http://localhost:8010/sse';
   }
 
 
